@@ -9,105 +9,96 @@ const DAYS = {
 // ============================================================
 april: [
 
-// --- WEEK 3 OF PHASE 1 ---
-{key:'2026-04-01',date:'Apr 1',dateNum:'1',dow:'Wednesday',tag:'run',tagLabel:'Run',
- week:'Week 3 of Phase 1',weekLabel:'Phase 1 · Cut @ 1,900 cal',summary:'Tempo 5K + mobility',
+// --- VACATION (Mar 29 – Apr 4) ---
+{key:'2026-04-01',date:'Apr 1',dateNum:'1',dow:'Wednesday',tag:'rest',tagLabel:'Vacation',
+ week:'Vacation — Mar 29–Apr 4',weekLabel:'🏖️ Maintenance cal · Walk daily · Hotel gym optional',summary:'Vacation — light hotel gym or walking',
  detail:{
-   left:[{h:'Tempo 5K Run',rows:[
-     {n:'Warm-up walk',s:'5 min easy'},
-     {n:'5K run',s:'Target 9:30–10:00/mile'},
-     {n:'Cool-down walk',s:'5 min'},
-   ]},{h:'Mobility (10 min)',rows:[
-     {n:'Hip flexor stretch',s:'60s each side'},
-     {n:'Thoracic rotation',s:'10 reps each'},
-     {n:'Ankle circles',s:'20 each'},
+   left:[{h:'Vacation Activity Guidelines',rows:[
+     {n:'Planned workouts',s:'None — this is intentional rest'},
+     {n:'Walking',s:'8,000–12,000 steps/day naturally'},
+     {n:'Hotel gym',s:'Optional — 20–30 min only if you feel like it'},
+     {n:'If you do gym',s:'Light dumbbells, bodyweight, treadmill walk'},
+     {n:'No pressure',s:'Movement happens through vacation activity'},
+   ]},{h:'Optional Hotel Gym (20–30 min)',rows:[
+     {n:'DB chest press',s:'3×12 @ whatever is available'},
+     {n:'DB row',s:'3×12 each arm'},
+     {n:'Bodyweight squats',s:'3×20'},
+     {n:'Plank',s:'3×30s'},
+     {n:'Treadmill walk',s:'20 min at incline'},
    ]}],
-   right:[{h:'Nutrition',rows:[
-     {n:'Calories',v:'1,900'},
-     {n:'Protein',v:'210g'},
-     {n:'Carbs',v:'155g'},
-     {n:'Fat',v:'50g'},
-     {n:'Pre-run',v:'Banana + ½ scoop whey'},
-     {n:'Post-run',v:'3 eggs + toast + berries'},
+   right:[{h:'Nutrition — Vacation Mode',rows:[
+     {n:'Calories',v:'2,200–2,400 (maintenance/refeed)'},
+     {n:'Protein',v:'Keep high — 180g+ minimum'},
+     {n:'Enjoy food',v:'Intentional refeed week'},
+     {n:\"Don\'t binge\",v:'Enjoy freely but stay reasonable'},
+     {n:'Alcohol',v:'Moderate — blunts recovery and sleep'},
+   ]},{h:'Mindset',rows:[
+     {n:'Purpose',v:'Physical and mental recovery'},
+     {n:'Guilt',v:'None — this is programmed rest'},
+     {n:'Fitness loss',v:'Zero — 7 days off loses nothing'},
+     {n:'Return',v:'Fast starts Apr 5, training resumes Apr 13'},
    ]}],
-   note:'<strong>Pace note:</strong> 9:30–10:00/mile keeps cortisol in check on a cut. You\'re building the aerobic base, not proving fitness today. Current 5K: ~31 min. By end of April: ~29:30.'
+   note:'<strong>Vacation is part of the program.</strong> This refeed week at 2,200–2,400 cal resets leptin, restores glycogen, and gives joints and CNS full recovery. You will come back April 13 stronger than if you ground through another week.'
  }
 },
-{key:'2026-04-02',date:'Apr 2',dateNum:'2',dow:'Thursday',tag:'lift',tagLabel:'Lift',
- week:'Week 3 of Phase 1',weekLabel:'Phase 1 · Cut @ 1,900 cal',summary:'Volume bench + abs',
+{key:'2026-04-02',date:'Apr 2',dateNum:'2',dow:'Thursday',tag:'rest',tagLabel:'Vacation',
+ week:'Vacation — Mar 29–Apr 4',weekLabel:'🏖️ Maintenance cal · Walk daily · Hotel gym optional',summary:'Vacation — rest and explore',
  detail:{
-   left:[{h:'Volume Bench + Abs',rows:[
-     {n:'Band pull-aparts',s:'3×15 warm-up'},
-     {n:'Barbell bench press',s:'4×8 @ 165 lbs'},
-     {n:'Incline DB press',s:'3×10 @ 65 lbs'},
-     {n:'Cable fly / pec deck',s:'3×12'},
-     {n:'Plank',s:'3×45s'},
-     {n:'Hanging knee raise',s:'3×12'},
-     {n:'Cable crunch',s:'3×15'},
-   ]},{h:'Warm-up mobility',rows:[
-     {n:'Shoulder circles',s:'20 each direction'},
-     {n:'Cat-cow',s:'10 reps'},
-     {n:'Wall slides',s:'10 reps'},
+   left:[{h:'Today',rows:[
+     {n:'Training',s:'No planned workout'},
+     {n:'Activity',s:'Walking, sightseeing, family time'},
+     {n:'Steps',s:'Let them happen naturally'},
+     {n:'Hotel gym',s:'Optional 20–30 min if energy is high'},
    ]}],
    right:[{h:'Nutrition',rows:[
-     {n:'Calories',v:'1,900'},
-     {n:'Pre-workout 7:15am',v:'Banana + ½ scoop whey'},
-     {n:'Post-workout',v:'3 eggs + toast + berries (500 cal)'},
-     {n:'Lunch',v:'7oz chicken + rice + veg (550 cal)'},
-     {n:'Snack',v:'Greek yogurt + apple + almonds (300 cal)'},
-     {n:'Dinner',v:'6oz salmon + sweet potato + salad (400 cal)'},
+     {n:'Calories',v:'2,200–2,400'},
+     {n:'Protein',v:'180g+ minimum'},
+     {n:'Enjoy',v:'Vacation food is fine — stay reasonable'},
    ]}],
-   note:'<strong>Bench note:</strong> Volume day — stay at 165 lbs, hit all 4×8. Do NOT go heavier. Thursday is for volume, pump, and reinforcing the groove. Rest 90s between sets max.'
+   note:'Enjoy the vacation. The fast starts Sunday April 5 — use these days to genuinely rest and recharge mentally. The harder the fast, the more valuable this rest beforehand.'
  }
 },
-{key:'2026-04-03',date:'Apr 3',dateNum:'3',dow:'Friday',tag:'bag',tagLabel:'Lift+Bag',
- extraTags:[{cls:'pink',label:'Bag'}],
- week:'Week 3 of Phase 1',weekLabel:'Phase 1 · Cut @ 1,900 cal',summary:'Volume arms + legs + bag work',
+{key:'2026-04-03',date:'Apr 3',dateNum:'3',dow:'Friday',tag:'rest',tagLabel:'Vacation',
+ week:'Vacation — Mar 29–Apr 4',weekLabel:'🏖️ Maintenance cal · Walk daily · Hotel gym optional',summary:'Vacation — rest and explore',
  detail:{
-   left:[{h:'Volume Arms + Light Legs',rows:[
-     {n:'Barbell curl',s:'4×8 @ 85 lbs'},
-     {n:'Hammer curl',s:'3×10 each'},
-     {n:'Tricep pushdown',s:'4×12 @ 55 lbs'},
-     {n:'Skull crusher',s:'3×10 @ 55 lbs'},
-     {n:'Goblet squat',s:'3×12 @ 50 lbs (form focus)'},
-     {n:'Romanian deadlift',s:'3×10 @ 165 lbs'},
-     {n:'Leg press',s:'3×15 light'},
-   ]},{h:'Heavy Bag — 30 min',rows:[
-     {n:'Shadow boxing warm-up',s:'2 rounds × 3 min'},
-     {n:'Combo work (1-2-body-kick)',s:'3 rounds × 3 min'},
-     {n:'Power kicks',s:'2 rounds × 3 min'},
-     {n:'Burnout round',s:'1 × 2 min'},
+   left:[{h:'Today',rows:[
+     {n:'Training',s:'No planned workout'},
+     {n:'Activity',s:'Walking, family, whatever feels good'},
+     {n:'Hotel gym',s:'Optional — short and light if so'},
    ]}],
    right:[{h:'Nutrition',rows:[
-     {n:'Calories',v:'1,900'},
-     {n:'Protein',v:'210g'},
-   ]},{h:'Mobility cool-down',rows:[
-     {n:'Hip flexor kneeling stretch',s:'90s each'},
-     {n:'Pigeon pose',s:'60s each'},
-     {n:'Shoulder cross-body',s:'30s each'},
+     {n:'Calories',v:'2,200–2,400'},
+     {n:'Protein',v:'180g+ minimum'},
+   ]},{h:'Fast Prep Starts Tomorrow',rows:[
+     {n:'Apr 4 tomorrow',v:'Start reducing carbs to ~120g'},
+     {n:'Apr 5',v:'Drop to 80–100g carbs, increase fat'},
+     {n:'Apr 5 6pm',v:'Fast begins'},
    ]}],
-   note:'<strong>Squat form:</strong> Goblet squat only — feet shoulder-width, toes 15–20° out, sit INTO the hips. Light and correct beats heavy and broken every time this month.'
+   note:'<strong>Tomorrow start easing into the fast.</strong> Reduce carbs slightly — drop rice, bread, potatoes — and increase fat (avocado, olive oil, salmon). This primes your body to enter ketosis faster once the fast begins Sunday evening.'
  }
 },
-{key:'2026-04-04',date:'Apr 4',dateNum:'4',dow:'Saturday',tag:'run',tagLabel:'Run',
- week:'Week 3 of Phase 1',weekLabel:'Phase 1 · Cut @ 1,900 cal',summary:'Easy 5K — recovery pace',
+{key:'2026-04-04',date:'Apr 4',dateNum:'4',dow:'Saturday',tag:'rest',tagLabel:'Vacation',
+ week:'Vacation — Mar 29–Apr 4',weekLabel:'🏖️ Last vacation day · Begin low-carb prep',summary:'Last vacation day — begin low-carb prep for fast',
  detail:{
-   left:[{h:'Easy 5K',rows:[
-     {n:'Warm-up walk',s:'5 min'},
-     {n:'Easy 5K',s:'10:30–11:00/mile — genuinely easy'},
-     {n:'Cool-down walk + stretch',s:'10 min'},
-   ]},{h:'Post-run mobility',rows:[
-     {n:'Standing quad stretch',s:'45s each'},
-     {n:'Calf stretch on step',s:'45s each'},
-     {n:'Lateral band walk',s:'2×15 each (optional)'},
+   left:[{h:'Today — Pre-Fast Carb Reduction',rows:[
+     {n:'Training',s:'No planned workout'},
+     {n:'Activity',s:'Walking — last easy day'},
+     {n:'Carbs today',s:'Reduce to ~120g (skip rice, bread, potatoes)'},
+     {n:'Fat today',s:'Increase — avocado, olive oil, nuts, salmon'},
+     {n:'Protein',s:'Keep high — 180g+'},
    ]}],
    right:[{h:'Nutrition',rows:[
-     {n:'Calories',v:'1,900'},
-     {n:'Protein',v:'210g'},
-     {n:'Pre-run',v:'Light — half banana or nothing'},
-     {n:'Focus',v:'Hydration — 100+ oz water today'},
+     {n:'Calories',v:'2,000–2,200 (slightly lower)'},
+     {n:'Carbs',v:'~120g — begin depletion'},
+     {n:'Fat',v:'~80g — increase today'},
+     {n:'Protein',v:'180g+'},
+   ]},{h:'Tomorrow Apr 5',rows:[
+     {n:'Carbs',v:'Drop to 80–100g'},
+     {n:'Final meal',v:'6pm — salmon + avocado + salad, no rice'},
+     {n:'After 6pm',v:'Fast begins — water only'},
+     {n:'Have ready',v:'Pink salt, Nu-Salt, magnesium, green tea'},
    ]}],
-   note:'<strong>Saturday run purpose:</strong> Active recovery. This run flushes lactate, keeps the aerobic engine warm, and preps your gut for the fast starting Monday. Keep it conversational pace.'
+   note:'<strong>Last day of vacation — last day of eating freely.</strong> Enjoy it but keep carbs lower than normal. Going into the fast with partially depleted glycogen means ketosis in 24–30 hours instead of 36–48. Deeper autophagy, faster.'
  }
 },
 {key:'2026-04-05',date:'Apr 5',dateNum:'5',dow:'Sunday',tag:'rest',tagLabel:'Rest',

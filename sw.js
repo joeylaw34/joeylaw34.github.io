@@ -1,5 +1,5 @@
-const CACHE = 'joes-training-v3';
-const FILES = ['./index.html', './data.js', './manifest.json', './icon.svg'];
+const CACHE = 'joes-training-v4';
+const FILES = ['./index.html', './health.js', './data.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
@@ -14,7 +14,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('data.js')) {
+  if (e.request.url.includes('data.js') || e.request.url.includes('health.js')) {
     e.respondWith(
       fetch(e.request).then(r => {
         const clone = r.clone();

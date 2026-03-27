@@ -231,6 +231,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   </button>
 </div>
 
+<script src="health.js"></script>
 <script src="data.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -456,3 +457,284 @@ renderMetrics();
 </script>
 </body>
 </html>
+<script>
+// ============================================================
+// HEALTH METRICS SCREEN — replaces static renderMetrics()
+// ============================================================
+
+let healthData = {};
+let healthReady = false;
+
+async function initHealth() {
+  const ok = await HEALTH.init();
+  healthReady = ok;
+  if (document.getElementById('screen-metrics').classList.contains('active')) {
+    await renderHealthScreen();
+  }
+}
+
+async function renderHealthScreen() {
+  const el = document.getElementById('metrics-body');
+  el.innerHTML = '<div style="padding:20px 16px;color:var(--color-text-secondary);font-size:13px">Loading health data...</div>';
+
+  let live = {};
+  let weightTrend = [];
+
+  if (healthReady) {
+    try {
+      live = await HEALTH.getTodayMetrics();
+      weightTrend = await HEALTH.getWeightTrend() || [];
+    } catch(e) { console.log('Health read error:', e); }
+  } else {
+    live = HEALTH.getTodayManual();
+    weightTrend = HEALTH.getManualWeightTrend();
+  }
+
+  healthData = live;
+
+  // Goals from program
+  const goalWeight = 200;
+  const startWeight = 216;
+  const goalCal = 1900;
+  const goalProtein = 210;
+  const goalSteps = 8000;
+
+  const weightPct = live.weight
+    ? Math.round(((startWeight - live.weight) / (startWeight - goalWeight)) * 100)
+    : null;
+
+  const today = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let html = '';
+
+  // ---- LIVE TODAY STRIP ----
+  html += `<div style="padding:12px 16px 0"><div style="font-size:11px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Today — ${days[today.getDay()]} ${months[today.getMonth()]} ${today.getDate()}</div>`;
+
+  if (!healthReady) {
+    html += `<div style="background:var(--color-background-warning);border:1px solid var(--color-border-warning);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--color-text-warning);margin-bottom:10px">
+      Apple Health not available in this browser. Enter today's numbers manually below, or open in Safari on your iPhone.
+    </div>`;
+  }
+
+  // Stat cards row 1 — weight + calories
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">`;
+
+  // Weight card
+  const wtDisplay = live.weight ? `${live.weight}` : '—';
+  const wtSub = live.weight ? `${Math.round((live.weight - goalWeight) * 10)/10} lbs to goal` : 'Not logged today';
+  const wtColor = live.weight && live.weight <= goalWeight ? '#22c55e' : '#3b82f6';
+  html += statCard('Weight', wtDisplay, 'lbs', wtSub, wtColor, weightPct);
+
+  // Calories card
+  const calDisplay = live.calories || '—';
+  const calPct = live.calories ? Math.round((live.calories / goalCal) * 100) : null;
+  const calColor = live.calories > goalCal * 1.1 ? '#ef4444' : live.calories > goalCal * 0.9 ? '#22c55e' : '#f59e0b';
+  const calSub = live.calories ? `Goal: ${goalCal} cal` : 'Not logged yet';
+  html += statCard('Calories', calDisplay ? calDisplay.toLocaleString() : '—', 'cal', calSub, calColor, calPct);
+
+  html += '</div>';
+
+  // Stat cards row 2 — macros
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">`;
+  html += miniStatCard('Protein', live.protein || '—', 'g', `/ ${goalProtein}g`, '#22c55e', live.protein ? Math.round((live.protein/goalProtein)*100) : null);
+  html += miniStatCard('Carbs', live.carbs || '—', 'g', '/ 155g', '#3b82f6', live.carbs ? Math.round((live.carbs/155)*100) : null);
+  html += miniStatCard('Fat', live.fat || '—', 'g', '/ 50g', '#f59e0b', live.fat ? Math.round((live.fat/50)*100) : null);
+  html += '</div>';
+
+  // Stat cards row 3 — activity + heart
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">`;
+  const stepsPct = live.steps ? Math.round((live.steps / goalSteps) * 100) : null;
+  const stepsSub = live.steps ? `Goal: ${goalSteps.toLocaleString()} steps` : 'Syncing...';
+  html += statCard('Steps', live.steps ? live.steps.toLocaleString() : '—', '', stepsSub, '#a855f7', stepsPct);
+
+  const hrvColor = !live.hrv ? '#888' : live.hrv >= 50 ? '#22c55e' : live.hrv >= 35 ? '#f59e0b' : '#ef4444';
+  const hrvSub = live.hrv ? (live.hrv >= 50 ? 'Good recovery' : live.hrv >= 35 ? 'Moderate recovery' : 'Low — prioritize sleep') : 'Last night\'s reading';
+  html += statCard('HRV', live.hrv || '—', 'ms', hrvSub, hrvColor, null);
+  html += '</div>';
+
+  html += '</div>'; // end padding div
+
+  // ---- WEIGHT TREND CHART ----
+  if (weightTrend.length > 1) {
+    html += renderWeightChart(weightTrend, goalWeight);
+  }
+
+  // ---- MANUAL ENTRY (always shown as fallback / supplement) ----
+  if (!healthReady) {
+    html += renderManualEntry(live);
+  }
+
+  // ---- STRENGTH GOALS ----
+  html += renderStrengthGoals();
+
+  // ---- RESTING HR ----
+  if (live.restingHR) {
+    html += `<div style="padding:0 16px 8px">
+      <div style="font-size:11px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 6px">Resting heart rate</div>
+      <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px">
+        <div style="font-size:28px;font-weight:700;color:${live.restingHR < 60 ? '#22c55e' : live.restingHR < 70 ? '#3b82f6' : '#f59e0b'}">${live.restingHR}</div>
+        <div>
+          <div style="font-size:13px;font-weight:600">bpm resting</div>
+          <div style="font-size:12px;color:var(--color-text-secondary)">${live.restingHR < 60 ? 'Excellent — athlete range' : live.restingHR < 70 ? 'Good cardiovascular fitness' : 'Normal — improves with cardio'}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function statCard(label, value, unit, sub, color, pct) {
+  const bar = pct !== null ? `<div style="background:var(--color-border-tertiary);border-radius:3px;height:4px;margin-top:6px;overflow:hidden"><div style="width:${Math.min(pct,100)}%;height:100%;background:${color};border-radius:3px"></div></div>` : '';
+  return `<div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px">
+    <div style="font-size:11px;color:var(--color-text-tertiary);font-weight:500">${label}</div>
+    <div style="font-size:26px;font-weight:700;color:${color};line-height:1.1;margin-top:3px">${value}<span style="font-size:13px;font-weight:400;color:var(--color-text-secondary);margin-left:3px">${unit}</span></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">${sub}</div>
+    ${bar}
+  </div>`;
+}
+
+function miniStatCard(label, value, unit, sub, color, pct) {
+  const bar = pct !== null ? `<div style="background:var(--color-border-tertiary);border-radius:3px;height:3px;margin-top:5px;overflow:hidden"><div style="width:${Math.min(pct,100)}%;height:100%;background:${color};border-radius:3px"></div></div>` : '';
+  return `<div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:10px 12px">
+    <div style="font-size:10px;color:var(--color-text-tertiary);font-weight:500">${label}</div>
+    <div style="font-size:20px;font-weight:700;color:${color};line-height:1.1;margin-top:2px">${value}<span style="font-size:11px;font-weight:400;color:var(--color-text-secondary);margin-left:2px">${unit}</span></div>
+    <div style="font-size:10px;color:var(--color-text-secondary);margin-top:1px">${sub}</div>
+    ${bar}
+  </div>`;
+}
+
+function renderWeightChart(trend, goal) {
+  const vals = trend.map(d => d.lbs);
+  const min = Math.min(...vals, goal) - 2;
+  const max = Math.max(...vals) + 2;
+  const range = max - min;
+  const W = 320, H = 100, pad = { l:36, r:12, t:10, b:20 };
+  const iW = W - pad.l - pad.r;
+  const iH = H - pad.t - pad.b;
+
+  const toX = i => pad.l + (i / (trend.length - 1)) * iW;
+  const toY = v => pad.t + (1 - (v - min) / range) * iH;
+
+  // Polyline points
+  const pts = trend.map((d,i) => `${toX(i)},${toY(d.lbs)}`).join(' ');
+  const goalY = toY(goal);
+
+  // Y axis labels
+  const yLabels = [Math.ceil(max), Math.round((max+min)/2), Math.floor(min)].map(v =>
+    `<text x="${pad.l - 4}" y="${toY(v) + 4}" text-anchor="end" font-size="9" fill="#888">${v}</text>`
+  ).join('');
+
+  // X axis labels — show first, mid, last date
+  const xLabels = [0, Math.floor(trend.length/2), trend.length-1].map(i => {
+    const d = trend[i].date;
+    return `<text x="${toX(i)}" y="${H - 4}" text-anchor="middle" font-size="9" fill="#888">${d.getMonth()+1}/${d.getDate()}</text>`;
+  }).join('');
+
+  // Dots
+  const dots = trend.map((d,i) =>
+    `<circle cx="${toX(i)}" cy="${toY(d.lbs)}" r="2.5" fill="${d.lbs <= goal ? '#22c55e' : '#3b82f6'}"/>`
+  ).join('');
+
+  // Latest value label
+  const last = trend[trend.length-1];
+  const lastX = toX(trend.length-1);
+  const lastY = toY(last.lbs);
+
+  return `<div style="padding:0 16px 8px">
+    <div style="font-size:11px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 8px">30-day weight trend</div>
+    <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px;overflow:hidden">
+      <svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">
+        ${yLabels}${xLabels}
+        <line x1="${pad.l}" y1="${goalY}" x2="${W-pad.r}" y2="${goalY}" stroke="#22c55e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="${W-pad.r+2}" y="${goalY+4}" font-size="8" fill="#22c55e" opacity="0.8">goal</text>
+        <polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        ${dots}
+        <text x="${lastX}" y="${lastY - 7}" text-anchor="middle" font-size="9" font-weight="600" fill="#3b82f6">${last.lbs}</text>
+      </svg>
+    </div>
+  </div>`;
+}
+
+function renderManualEntry(existing) {
+  return `<div style="padding:0 16px 8px">
+    <div style="font-size:11px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 6px">Manual entry</div>
+    <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${manualField('weight','Weight (lbs)',existing.weight||'')}
+        ${manualField('calories','Calories',existing.calories||'')}
+        ${manualField('protein','Protein (g)',existing.protein||'')}
+        ${manualField('hrv','HRV (ms)',existing.hrv||'')}
+      </div>
+      <button onclick="saveManualEntry()" style="margin-top:10px;width:100%;padding:9px;border-radius:8px;border:1px solid var(--color-border-secondary);background:var(--color-text-primary);color:var(--color-background-primary);font-size:13px;font-weight:600;cursor:pointer">Save today's numbers</button>
+    </div>
+  </div>`;
+}
+
+function manualField(id, label, val) {
+  return `<div>
+    <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px">${label}</div>
+    <input id="manual_${id}" type="number" value="${val}" placeholder="—"
+      style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:15px;font-weight:600">
+  </div>`;
+}
+
+function saveManualEntry() {
+  const fields = ['weight','calories','protein','hrv'];
+  const data = {};
+  fields.forEach(f => {
+    const v = document.getElementById('manual_' + f)?.value;
+    if (v) data[f] = parseFloat(v);
+  });
+  HEALTH.saveManual(data);
+  renderHealthScreen();
+}
+
+function renderStrengthGoals() {
+  const goals = [
+    {label:'Bench press',current:'205×3',target:'225×1 (May)',pct:91,color:'#3b82f6',note:'Est 1RM: ~226 lbs'},
+    {label:'Bench (long-term)',current:'205×3',target:'225×6–8 (Mar 2027)',pct:50,color:'#22c55e',note:'Winter 5/3/1 phase'},
+    {label:'Squat',current:'~175 lbs',target:'275 lbs (Oct)',pct:Math.round((175/275)*100),color:'#f59e0b',note:'Rebuilt from 155 in March'},
+    {label:'Trap bar deadlift',current:'Starting Jun 8',target:'375 lbs (Jul)',pct:5,color:'#ef4444',note:'RDL at 200 confirms readiness'},
+    {label:'5K run',current:'~28 min',target:'Sub-25 min',pct:Math.round(((31-28)/(31-25))*100),color:'#a855f7',note:'Target: September/October 2026'},
+  ];
+  let html = `<div style="padding:0 16px 8px">
+    <div style="font-size:11px;font-weight:600;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:10px 0 6px">Strength goals</div>`;
+  goals.forEach(g => {
+    html += `<div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:13px;font-weight:600">${g.label}</span>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">${g.target}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px">
+        <span style="font-size:20px;font-weight:700;color:${g.color}">${g.current}</span>
+        <span style="font-size:11px;color:var(--color-text-secondary)">${g.pct}% there</span>
+      </div>
+      <div style="background:var(--color-border-tertiary);border-radius:3px;height:4px;margin-top:6px;overflow:hidden">
+        <div style="width:${Math.min(g.pct,100)}%;height:100%;background:${g.color};border-radius:3px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:4px">${g.note}</div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// Override the original renderMetrics and hook into screen switching
+const _origSwitch = window.switchScreen;
+window.switchScreen = function(id, btn) {
+  _origSwitch(id, btn);
+  if (id === 'metrics') renderHealthScreen();
+};
+
+// Init health on load
+window.addEventListener('load', () => {
+  initHealth();
+  // Override original renderMetrics so it uses the live version
+  if (typeof renderMetrics === 'function') {
+    window.renderMetrics = renderHealthScreen;
+  }
+});
+</script>
